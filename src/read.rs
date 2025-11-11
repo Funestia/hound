@@ -470,6 +470,7 @@ impl<R> WavReader<R>
             18 => true,
             // Other sizes are unexpected, but such files do occur in the wild,
             // and reading these files is still possible, so we allow this.
+            20 => true,
             40 => true,
             _ => return Err(Error::FormatError("unexpected fmt chunk size")),
         };
@@ -496,8 +497,8 @@ impl<R> WavReader<R>
         }
 
         // If the chunk len was longer than expected, ignore the additional bytes.
-        if chunk_len == 40 {
-            try!(reader.skip_bytes(22));
+        if chunk_len >= 20 {
+            try!(reader.skip_bytes(chunk_len as usize - 18));
         }
         Ok(())
     }
